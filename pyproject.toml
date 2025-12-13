@@ -1,0 +1,27 @@
+[project]
+name = "comstruct-agentic-app"
+version = "0.1.0"
+description = "Something beast"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+
+authors = [
+  { name = "Jonas Dieker" }
+]
+
+dependencies = [
+  "langgraph>=0.6.0",
+  "langchain-anthropic>=0.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "ruff",
+  "black",
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"

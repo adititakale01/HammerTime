@@ -1,0 +1,2 @@
+.venv/
+secrets.yaml  // this is where our api keys are stored
