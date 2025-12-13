@@ -60,9 +60,25 @@ def place_order(custom_status=None):
         "Items": st.session_state.cart.copy()
     }
     st.session_state.orders.insert(0, new_order)
+    
+    # Add auto-approved orders to reports
+    if status == "Auto-Approved":
+        st.session_state.reports.append(new_order)
+    
     st.session_state.cart = []
     st.session_state.cart_version += 1
     return status
+
+
+def approve_order(order_id):
+    """Approve a pending order by its ID"""
+    for order in st.session_state.orders:
+        if order['Order ID'] == order_id and order['Status'] == "Pending Approval":
+            order['Status'] = "Approved"
+            # Add approved orders to reports
+            st.session_state.reports.append(order)
+            return True
+    return False
 
 
 def navigate_to(page):

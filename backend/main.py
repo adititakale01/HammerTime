@@ -1,7 +1,11 @@
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from backend.utils.request_agent import process_procurement_request, clean_voice_transcript
+from backend.utils.request_agent import process_procurement_request
+from backend.pdf_generator import generate_pdf_contract
 import csv
+import os
 
 app = FastAPI()
 
@@ -30,6 +34,10 @@ MOCK_PARTS = [
 class PromptRequest(BaseModel):
     prompt: str
 
+class OrderNumberRequest(BaseModel):
+    order_number: str
+    parts_list: list[dict]
+
 
 # data parsed once at startup
 def parse_data():
@@ -57,7 +65,6 @@ def parse_data():
     return c_materials
 
 c_materials_catalog = parse_data()
-print(c_materials_catalog[:2])
 
 
 @app.post("/receive_user_prompt")
@@ -66,6 +73,23 @@ async def receive_user_prompt(request: PromptRequest):
     suggested_materials = process_procurement_request(request.prompt, c_materials_catalog)
     #TODO: validate IDs are legit
     return suggested_materials
+
+
+@app.post("/generate_contract")
+async def generate_contract(request: OrderNumberRequest):
+    """Generates PDF contract for the approved parts and returns the PDF file."""
+    filename = f"contract_{request.order_number}.pdf"
+    pdf = generate_pdf_contract(request.parts_list, filename)
+    
+    # Check if file exists and return it
+    if os.path.exists(filename):
+        return FileResponse(
+            path=filename,
+            media_type='application/pdf',
+            filename=filename
+        )
+    else:
+        return {"status": "error", "message": "Failed to generate PDF"}
 
 
 @app.post("/send_foreman_approval")

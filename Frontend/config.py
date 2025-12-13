@@ -27,6 +27,8 @@ def init_session_state():
         st.session_state.cart = []
     if 'orders' not in st.session_state:
         st.session_state.orders = []
+    if 'reports' not in st.session_state:
+        st.session_state.reports = []
     if 'current_page' not in st.session_state:
         st.session_state.current_page = "Dashboard"
     if 'voice_text' not in st.session_state:
