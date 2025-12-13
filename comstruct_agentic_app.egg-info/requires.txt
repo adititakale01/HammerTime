@@ -1,0 +1,10 @@
+langgraph>=0.6.0
+langchain-anthropic>=0.3.0
+fastapi
+uvicorn[standard]
+streamlit
+
+[dev]
+pytest
+ruff
+black
