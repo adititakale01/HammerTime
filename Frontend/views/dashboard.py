@@ -58,7 +58,11 @@ def dashboard_view():
                                 "price": api_item.get("preis_stk"),
                                 "category": api_item.get("kategorie"),
                                 "supplier": api_item.get("lieferant"),
-                                "subtotal": api_item.get("preis_stk", 0) * api_item.get("anzahl", 0)
+                                "subtotal": api_item.get("preis_stk", 0) * api_item.get("anzahl", 0),
+                                "lagerbestand": api_item.get("lagerbestand", 0),  # Current stock
+                                "needs_order": api_item.get("needs_order", api_item.get("anzahl", 0)),  # Additional needed
+                                "is_preferred": api_item.get("is_preferred", False),  # Preferred supplier
+                                "lead_time_days": api_item.get("lead_time_days", 7)  # Lead time
                             })
                         
                         st.session_state.search_results = {
@@ -100,16 +104,42 @@ def dashboard_view():
                 
                 for idx, rec in enumerate(recommendations):
                     with st.container(border=True):
-                        c1, c2, c3, c4 = st.columns([0.5, 2, 1, 1])
+                        c1, c2, c3, c4, c5, c6 = st.columns([0.5, 2, 1, 1, 1, 0.8])
                         with c1:
                             st.markdown("<div style='font-size: 2rem; text-align: center;'>🔩</div>", unsafe_allow_html=True)
                         with c2:
+                            # Show preferred badge next to supplier
+                            is_preferred = rec.get('is_preferred', False)
+                            lead_time = rec.get('lead_time_days', 7)
                             st.markdown(f"**{rec['name']}**")
-                            st.caption(f"{rec['category']} | {rec['supplier']}")
+                            if is_preferred:
+                                st.markdown(f"""
+                                <span style="color: #64748B; font-size: 0.875rem;">{rec['category']} | </span>
+                                <span style="display: inline-block; background: #FEF2F2; border: 1.5px solid #EF4444; border-radius: 4px; padding: 1px 6px; font-size: 0.75rem; color: #DC2626; font-weight: 600;">⭐ {rec['supplier']}</span>
+                                """, unsafe_allow_html=True)
+                            else:
+                                st.caption(f"{rec['category']} | {rec['supplier']}")
                         with c3:
                             st.markdown(f"**Qty: {rec['qty']}**")
                             st.caption(f"€{rec['subtotal']:.2f}")
                         with c4:
+                            # Show inventory status
+                            stock = rec.get('lagerbestand', 0)
+                            needs = rec.get('needs_order', rec['qty'])
+                            if stock >= rec['qty']:
+                                st.markdown(f"✅ **In Stock**")
+                                st.caption(f"{stock} available")
+                            elif stock > 0:
+                                st.markdown(f"⚠️ **Low Stock**")
+                                st.caption(f"Need {needs} more")
+                            else:
+                                st.markdown(f"❌ **Order**")
+                                st.caption(f"Need {needs}")
+                        with c5:
+                            # Show lead time
+                            st.markdown(f"🚚 **{lead_time}d**")
+                            st.caption("lead time")
+                        with c6:
                             if st.button("Add", key=f"rec_{rec['id']}_{idx}", use_container_width=True):
                                 add_to_cart(rec, rec["qty"])
                                 st.toast(f"✅ Added {rec['name']} to cart!")

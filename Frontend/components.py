@@ -106,12 +106,18 @@ def render_product_description(product):
 
 def render_chat_message(role, content):
     """Render a single chat message bubble"""
+    # Convert newlines and bullet points to HTML
+    formatted_content = content.replace('\n', '<br>').replace('• ', '<br>• ')
+    # Clean up any double line breaks at the start
+    if formatted_content.startswith('<br>'):
+        formatted_content = formatted_content[4:]
+    
     if role == "user":
         # User message - right aligned, blue
         st.markdown(f"""
         <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
             <div style="background-color: #2563EB; color: white; padding: 0.75rem 1rem; border-radius: 12px 12px 0 12px; max-width: 80%;">
-                {content}
+                {formatted_content}
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -119,8 +125,8 @@ def render_chat_message(role, content):
         # Assistant message - left aligned, gray
         st.markdown(f"""
         <div style="display: flex; justify-content: flex-start; margin-bottom: 1rem;">
-            <div style="background-color: #F1F5F9; color: #1E3A5F; padding: 0.75rem 1rem; border-radius: 12px 12px 12px 0; max-width: 80%; border: 1px solid #E2E8F0;">
-                {content}
+            <div style="background-color: #F1F5F9; color: #1E3A5F; padding: 0.75rem 1rem; border-radius: 12px 12px 12px 0; max-width: 80%; border: 1px solid #E2E8F0; line-height: 1.5;">
+                {formatted_content}
             </div>
         </div>
         """, unsafe_allow_html=True)

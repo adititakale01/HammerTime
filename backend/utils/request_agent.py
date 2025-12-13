@@ -200,6 +200,7 @@ def match_and_price(result_json: dict, csv_path: str = 'backend/data/sample.csv'
             preis_stk = float(product.get('preis_eur') or 0.0)
             preis_gesamt = round(anzahl * preis_stk, 2)
             total += preis_gesamt
+            lagerbestand = int(product.get('lagerbestand', 0))
 
             item = {
                 'artikel_id': product.get('artikel_id', artikel_id),
@@ -211,6 +212,10 @@ def match_and_price(result_json: dict, csv_path: str = 'backend/data/sample.csv'
                 'preis_gesamt': preis_gesamt,
                 'lieferant': product.get('lieferant', ''),
                 'typische_baustelle': product.get('typische_baustelle', ''),
+                'lagerbestand': lagerbestand,  # Current inventory
+                'needs_order': max(0, anzahl - lagerbestand),  # How many more to order
+                'is_preferred': product.get('is_preferred', False),  # Preferred supplier
+                'lead_time_days': product.get('lead_time_days', 7),  # Delivery lead time
                 'matched': True,
             }
         else:
@@ -225,6 +230,10 @@ def match_and_price(result_json: dict, csv_path: str = 'backend/data/sample.csv'
                 'preis_gesamt': 0.0,
                 'lieferant': '',
                 'typische_baustelle': '',
+                'lagerbestand': 0,
+                'needs_order': anzahl,
+                'is_preferred': False,
+                'lead_time_days': 7,
                 'matched': False,
             }
 
@@ -419,7 +428,12 @@ WORKFLOW:
 
 RESPONSE FORMAT:
 If describing/asking questions, respond with ONLY:
-QUESTION: <description of what you see and your question>
+QUESTION: <your response using bullet points>
+
+Format your response with bullet points for clarity:
+• What I see: [brief description]
+• Identified: [item type]
+• Need to know: [your question]
 
 If ready to recommend, respond with ONLY a JSON object:
 {{
@@ -430,7 +444,7 @@ If ready to recommend, respond with ONLY a JSON object:
     "explanation": "Brief explanation of what was identified and ordered"
 }}
 
-Be helpful and accurate. Construction workers rely on getting the right materials!"""
+Keep responses SHORT and use bullet points. Construction workers are busy!"""
 
     # Build messages for Claude with image
     claude_messages = []

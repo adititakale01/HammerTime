@@ -156,18 +156,45 @@ def voice_request_view():
             if items:
                 # Display items in a nice format
                 for item in items:
-                    col1, col2, col3 = st.columns([3, 1, 1])
+                    col1, col2, col3, col4, col5 = st.columns([2, 1, 1, 0.8, 0.8])
                     
                     with col1:
+                        is_preferred = item.get('is_preferred', False)
+                        supplier = item.get('lieferant', '')
+                        kategorie = item.get('kategorie', '')
                         st.markdown(f"**{item.get('artikelname', item.get('artikel_id', 'Unknown'))}**")
-                        st.caption(f"{item.get('kategorie', '')} | {item.get('lieferant', '')}")
+                        if is_preferred:
+                            st.markdown(f"""
+                            <span style="color: #64748B; font-size: 0.875rem;">{kategorie} | </span>
+                            <span style="display: inline-block; background: #FEF2F2; border: 1.5px solid #EF4444; border-radius: 4px; padding: 1px 6px; font-size: 0.75rem; color: #DC2626; font-weight: 600;">⭐ {supplier}</span>
+                            """, unsafe_allow_html=True)
+                        else:
+                            st.caption(f"{kategorie} | {supplier}")
                     
                     with col2:
                         st.markdown(f"Qty: **{item.get('anzahl', 0)}**")
-                        st.caption(f"€{item.get('preis_stk', 0):.2f}/pc")
+                        lead_time = item.get('lead_time_days', 7)
+                        st.caption(f"🚚 {lead_time}d lead")
                     
                     with col3:
+                        # Show inventory status
+                        stock = item.get('lagerbestand', 0)
+                        qty_needed = item.get('anzahl', 0)
+                        needs = item.get('needs_order', qty_needed)
+                        if stock >= qty_needed:
+                            st.markdown(f"✅ **In Stock**")
+                            st.caption(f"{stock} avail.")
+                        elif stock > 0:
+                            st.markdown(f"⚠️ **Low**")
+                            st.caption(f"Need {needs}")
+                        else:
+                            st.markdown(f"❌ **Order**")
+                            st.caption(f"Need {needs}")
+                    
+                    with col4:
                         st.markdown(f"**€{item.get('preis_gesamt', 0):.2f}**")
+                    
+                    with col5:
                         if st.button("➕", key=f"add_chat_{item.get('artikel_id', '')}"):
                             product = {
                                 'id': item.get('artikel_id', ''),

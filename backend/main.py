@@ -40,7 +40,22 @@ class OrderNumberRequest(BaseModel):
     parts_list: list[dict]
 
 
+# Preferred suppliers - companies we have contracts with
+PREFERRED_SUPPLIERS = ["Würth", "Fischer", "Hilti"]
+
+# Lead times by supplier (in business days)
+SUPPLIER_LEAD_TIMES = {
+    "Würth": 2,
+    "Fischer": 3,
+    "Hilti": 2,
+    "Reisser": 5,
+    "Bosch": 4,
+    "Makita": 5,
+    "default": 7  # Unknown suppliers
+}
+
 # data parsed once at startup
+import random
 def parse_data():
     with open('backend/data/sample.csv', 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -60,6 +75,14 @@ def parse_data():
             # remove unwanted fields from the row
             for _k in ('verbrauchsart', 'gefahrgut', 'gefahrengut', 'lagerort'):
                 row.pop(_k, None)
+            
+            # Add mock inventory data (simulating warehouse stock)
+            row['lagerbestand'] = random.randint(0, 500)  # Current stock
+            
+            # Add supplier preference and lead time
+            supplier = row.get('lieferant', '')
+            row['is_preferred'] = supplier in PREFERRED_SUPPLIERS
+            row['lead_time_days'] = SUPPLIER_LEAD_TIMES.get(supplier, SUPPLIER_LEAD_TIMES['default'])
 
             c_materials.append(row)
     
