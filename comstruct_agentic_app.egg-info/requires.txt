@@ -3,6 +3,7 @@ langchain-anthropic>=0.3.0
 fastapi
 uvicorn[standard]
 streamlit
+SpeechRecognition
 
 [dev]
 pytest
