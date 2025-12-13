@@ -21,8 +21,10 @@ def orders_view():
                     status = order['Status']
                     if status == "Pending Approval":
                         st.warning(status)
-                    elif status == "Auto-Approved" or status == "Approved":
+                    elif status in ["Auto-Approved", "Approved", "Admin Approved"]:
                         st.success(status)
+                    elif status == "Order Declined":
+                        st.error(status)
                     else:
                         st.info(status)
     else:

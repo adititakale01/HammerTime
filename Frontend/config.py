@@ -16,6 +16,10 @@ PRODUCTS = [
 # API Configuration
 API_BASE_URL = "http://localhost:8000"
 
+# Order Settings
+AUTO_APPROVAL_LIMIT = 1000  # Orders above this amount (EUR) require manual approval
+ADMIN_PASSWORD = "admin123"  # Password required for orders over limit
+
 
 def init_session_state():
     """Initialize all session state variables"""

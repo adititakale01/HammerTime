@@ -153,6 +153,13 @@ CUSTOM_CSS = """
         border: none !important;
     }
     
+    .stButton button[kind="primary"] p,
+    .stButton button[kind="primary"] span,
+    .stButton button[kind="primary"] * {
+        color: white !important;
+        background: transparent !important;
+    }
+    
     .stButton button[kind="primary"]:hover {
         background-color: #1D4ED8 !important;
     }
@@ -161,6 +168,13 @@ CUSTOM_CSS = """
         background-color: #FFFFFF !important;
         color: #2563EB !important;
         border: 2px solid #2563EB !important;
+    }
+    
+    .stButton button[kind="secondary"] p,
+    .stButton button[kind="secondary"] span,
+    .stButton button[kind="secondary"] * {
+        color: #2563EB !important;
+        background: transparent !important;
     }
     
     /* Search Input */

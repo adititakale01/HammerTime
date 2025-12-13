@@ -3,6 +3,7 @@ Reusable UI components: sidebar, order summary, product description
 """
 import streamlit as st
 from utils import calculate_total, place_order, navigate_to
+from config import AUTO_APPROVAL_LIMIT, ADMIN_PASSWORD
 
 
 def render_sidebar():
@@ -54,15 +55,39 @@ def render_order_summary():
     with col2:
         st.markdown(f"**€{total:.2f}**")
     
+    # Show approval status
+    requires_approval = total > AUTO_APPROVAL_LIMIT
+    
+    if requires_approval:
+        st.warning(f"⚠️ Requires admin approval (over €{AUTO_APPROVAL_LIMIT})")
+        admin_password = st.text_input(
+            "Admin Password",
+            type="password",
+            placeholder="Enter admin password to approve",
+            key=f"admin_password_input_{st.session_state.cart_version}"
+        )
+    else:
+        st.success(f"✓ Auto-approved (under €{AUTO_APPROVAL_LIMIT})")
+        admin_password = None
+    
     st.markdown("")
     
-    if st.button("Place order", type="primary", use_container_width=True):
-        status = place_order()
-        if status == "Pending Approval":
-            st.info(f"Order sent for approval")
+    if st.button("Place order", type="primary", use_container_width=True, key=f"place_order_btn_{st.session_state.cart_version}"):
+        if requires_approval:
+            if admin_password == ADMIN_PASSWORD:
+                status = place_order(custom_status="Admin Approved")
+                st.success(f"✅ Order approved by admin!")
+                st.rerun()
+            elif admin_password:  # Wrong password entered
+                status = place_order(custom_status="Order Declined")
+                st.error("❌ Invalid password. Order declined.")
+                st.rerun()
+            else:  # No password entered
+                st.warning("⚠️ Please enter admin password to place this order.")
         else:
+            status = place_order()
             st.success(f"Order placed successfully!")
-        st.rerun()
+            st.rerun()
 
 
 def render_product_description(product):

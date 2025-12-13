@@ -4,6 +4,7 @@ Helper functions for cart management, orders, and navigation
 import streamlit as st
 import random
 from datetime import datetime
+from config import AUTO_APPROVAL_LIMIT
 
 
 def add_to_cart(product, qty, add_mode=True):
@@ -41,10 +42,14 @@ def calculate_total():
     return sum(item['price'] * item['qty'] for item in st.session_state.cart)
 
 
-def place_order():
+def place_order(custom_status=None):
     """Place an order with current cart items"""
     total = calculate_total()
-    status = "Pending Approval" if total > 200 else "Auto-Approved"
+    
+    if custom_status:
+        status = custom_status
+    else:
+        status = "Pending Approval" if total > AUTO_APPROVAL_LIMIT else "Auto-Approved"
     
     new_order = {
         "Order ID": f"ORD-{random.randint(1000, 9999)}",
