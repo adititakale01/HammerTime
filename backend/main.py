@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List
-from backend.utils.request_agent import process_procurement_request, clean_voice_transcript, chat_procurement_request
+from backend.utils.request_agent import process_procurement_request, clean_voice_transcript, chat_procurement_request, analyze_image_request
+from typing import Optional
 from backend.pdf_generator import generate_pdf_contract
 import csv
 import os
@@ -146,6 +147,27 @@ async def chat_request(request: ChatRequest):
     """
     messages = [{"role": m.role, "content": m.content} for m in request.messages]
     result = chat_procurement_request(messages, c_materials_catalog)
+    return result
+
+
+class ImageAnalysisRequest(BaseModel):
+    image_base64: str
+    media_type: str  # e.g., "image/jpeg", "image/png"
+    messages: List[ChatMessage]
+
+@app.post("/analyze_image")
+async def analyze_image(request: ImageAnalysisRequest):
+    """
+    Analyze an uploaded image (handwritten list or photo of parts).
+    AI will describe what it sees and ask clarifying questions or provide recommendations.
+    """
+    messages = [{"role": m.role, "content": m.content} for m in request.messages]
+    result = analyze_image_request(
+        request.image_base64,
+        request.media_type,
+        messages,
+        c_materials_catalog
+    )
     return result
 
 

@@ -54,4 +54,13 @@ def init_session_state():
         st.session_state.voice_chat_recommendations = None  # Final recommendations from AI
     if 'voice_chat_pending' not in st.session_state:
         st.session_state.voice_chat_pending = False  # Flag to trigger AI response on next render
+    # Image Chat Flow state
+    if 'image_chat_messages' not in st.session_state:
+        st.session_state.image_chat_messages = []  # Chat history for image analysis
+    if 'image_chat_recommendations' not in st.session_state:
+        st.session_state.image_chat_recommendations = None  # Final recommendations from image
+    if 'image_chat_pending' not in st.session_state:
+        st.session_state.image_chat_pending = False  # Flag for pending AI response
+    if 'image_uploaded_data' not in st.session_state:
+        st.session_state.image_uploaded_data = None  # Base64 encoded image data
 

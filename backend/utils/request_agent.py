@@ -380,6 +380,162 @@ Remember: Be conversational but efficient. Construction workers are busy!"""
         return {"type": "error", "content": str(e)}
 
 
+def analyze_image_request(image_base64: str, media_type: str, messages: list, c_materials_data: list) -> dict:
+    """
+    Analyze an uploaded image (handwritten list or photo of parts) and have a conversation
+    to clarify and recommend products.
+    
+    Args:
+        image_base64: Base64 encoded image data
+        media_type: MIME type (e.g., "image/jpeg", "image/png")
+        messages: Conversation history
+        c_materials_data: Available products catalog
+    
+    Returns:
+        dict with either:
+        - {"type": "question", "content": "clarifying question"}
+        - {"type": "recommendations", "content": {...}}
+    """
+    api_key = secrets.get('API_KEY')
+    client = anthropic.Anthropic(api_key=api_key)
+    
+    materials_json = json.dumps(c_materials_data, ensure_ascii=False, indent=2)
+    
+    system_prompt = f"""You are a helpful construction procurement assistant with vision capabilities.
+
+You can analyze:
+1. HANDWRITTEN LISTS - Shopping lists, notes with items to order
+2. PHOTOS OF PARTS - Images of screws, tools, materials that need to be identified and ordered
+
+Available C-materials catalog:
+{materials_json}
+
+WORKFLOW:
+1. First, describe what you see in the image clearly
+2. If it's a handwritten list, read and transcribe the items
+3. If it's a photo of parts, identify what they are
+4. Ask ONE clarifying question if needed (size, quantity, specific type)
+5. When ready, provide recommendations from the catalog
+
+RESPONSE FORMAT:
+If describing/asking questions, respond with ONLY:
+QUESTION: <description of what you see and your question>
+
+If ready to recommend, respond with ONLY a JSON object:
+{{
+    "materials": [
+        ["artikel_id", quantity],
+        ...
+    ],
+    "explanation": "Brief explanation of what was identified and ordered"
+}}
+
+Be helpful and accurate. Construction workers rely on getting the right materials!"""
+
+    # Build messages for Claude with image
+    claude_messages = []
+    
+    # First message should include the image
+    if messages:
+        first_msg = messages[0]
+        if first_msg["role"] == "user":
+            claude_messages.append({
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": media_type,
+                            "data": image_base64
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "text": first_msg.get("content", "Please analyze this image and identify what materials are needed.")
+                    }
+                ]
+            })
+        
+        # Add remaining messages as text
+        for msg in messages[1:]:
+            claude_messages.append({
+                "role": msg["role"],
+                "content": msg["content"]
+            })
+    else:
+        # No messages yet, just analyze the image
+        claude_messages.append({
+            "role": "user",
+            "content": [
+                {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": media_type,
+                        "data": image_base64
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": "Please analyze this image. If it's a handwritten list, read the items. If it's a photo of parts/materials, identify them. Then help me order the right products."
+                }
+            ]
+        })
+    
+    try:
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=2000,
+            system=system_prompt,
+            messages=claude_messages
+        )
+        
+        response_text = response.content[0].text.strip()
+        print(f"Image analysis response: {response_text}")
+        
+        # Check if it's a question/description
+        if response_text.upper().startswith("QUESTION:"):
+            question = response_text[9:].strip()
+            return {"type": "question", "content": question}
+        
+        # Try to parse as JSON (final recommendations)
+        try:
+            json_text = response_text
+            if "```json" in json_text:
+                start = json_text.find("```json") + 7
+                end = json_text.find("```", start)
+                json_text = json_text[start:end].strip()
+            elif "```" in json_text:
+                start = json_text.find("```") + 3
+                end = json_text.find("```", start)
+                json_text = json_text[start:end].strip()
+            elif "{" in json_text:
+                first = json_text.find("{")
+                last = json_text.rfind("}")
+                if first != -1 and last != -1:
+                    json_text = json_text[first:last+1]
+            
+            result = json.loads(json_text)
+            
+            # Enrich with pricing
+            detailed = match_and_price(result, catalog=c_materials_data, approval_threshold=500.0)
+            detailed_output = {
+                'explanation': result.get('explanation', ''),
+                **detailed,
+            }
+            
+            return {"type": "recommendations", "content": detailed_output}
+            
+        except json.JSONDecodeError:
+            # If not valid JSON, treat as question/description
+            return {"type": "question", "content": response_text}
+            
+    except Exception as e:
+        print(f"Error in image analysis: {e}")
+        return {"type": "error", "content": str(e)}
+
+
 # Example usage
 if __name__ == "__main__":
     # Load your C-materials catalog (CSV -> list[dict])

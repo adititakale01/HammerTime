@@ -32,7 +32,7 @@ def main():
     
     # Route to appropriate view
     if st.session_state.current_page == "Dashboard":
-        tab1, tab2, tab3 = st.tabs(["📦 Product Search", "🎤 Create Request", "📷 Image Search"])
+        tab1, tab2, tab3 = st.tabs(["📦 Product Search", "🎤 Voice Request", "📷 Image Search"])
         
         with tab1:
             dashboard_view()
