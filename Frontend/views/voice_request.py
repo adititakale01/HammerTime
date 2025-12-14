@@ -69,7 +69,7 @@ def voice_request_view():
     main_col, summary_col = st.columns([3, 1])
     
     with main_col:
-        st.markdown("### 🎤 Create Request")
+        st.markdown("### Create request")
         st.caption("Speak or type your material request. I'll ask clarifying questions if needed.")
         
         # Chat History Container
@@ -133,13 +133,13 @@ def voice_request_view():
         col_send, col_clear = st.columns([1, 1])
         
         with col_send:
-            if st.button("📤 Send", key="voice_chat_send", use_container_width=True):
+            if st.button("Send", key="voice_chat_send", use_container_width=True):
                 if user_input and user_input.strip():
                     add_user_message(user_input.strip())
                     st.rerun()
         
         with col_clear:
-            if st.button("🗑️ Clear Chat", key="voice_chat_clear", use_container_width=True):
+            if st.button("Clear Chat", key="voice_chat_clear", use_container_width=True):
                 st.session_state.voice_chat_messages = []
                 st.session_state.voice_chat_recommendations = None
                 st.session_state.voice_chat_pending = False
@@ -148,7 +148,7 @@ def voice_request_view():
         # Show Recommendations if available
         if st.session_state.voice_chat_recommendations:
             st.markdown("---")
-            st.markdown("### 📦 Recommended Materials")
+            st.markdown("### Recommended Materials")
             
             recommendations = st.session_state.voice_chat_recommendations
             items = recommendations.get("items", [])

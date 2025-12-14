@@ -9,13 +9,11 @@ from config import AUTO_APPROVAL_LIMIT, ADMIN_PASSWORD
 def render_sidebar():
     """Render the sidebar navigation"""
     with st.sidebar:
-        st.markdown("## Procurement Assistant")
-        st.markdown("---")
         
         pages = [
-            ("🏠", "Dashboard"),
-            ("📋", "Orders"),
-            ("📊", "Reports")
+            ("", "Dashboard"),
+            ("", "Orders"),
+            ("", "Reports")
         ]
         
         for icon, page in pages:
@@ -26,7 +24,7 @@ def render_sidebar():
                 st.rerun()
         
         st.markdown("---")
-        st.caption("Hackathon Demo v2.0")
+        st.caption("Hackathon Demo v2.0", text_alignment="center")
 
 
 def render_order_summary(key_prefix="default"):

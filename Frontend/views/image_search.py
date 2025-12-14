@@ -71,7 +71,7 @@ def image_search_view():
     main_col, summary_col = st.columns([3, 1])
     
     with main_col:
-        st.markdown("### 📷 Image Search")
+        st.markdown("### Image Search")
         st.caption("Upload a handwritten list or photo of parts. AI will analyze and help you order.")
         
         # Image Upload Section
@@ -152,13 +152,13 @@ def image_search_view():
             col_send, col_clear = st.columns([1, 1])
             
             with col_send:
-                if st.button("📤 Send", key="image_chat_send", use_container_width=True):
+                if st.button("Send", key="image_chat_send", use_container_width=True):
                     if user_input and user_input.strip():
                         add_user_message(user_input.strip())
                         st.rerun()
             
             with col_clear:
-                if st.button("🗑️ Clear", key="image_chat_clear", use_container_width=True):
+                if st.button("Clear", key="image_chat_clear", use_container_width=True):
                     st.session_state.image_chat_messages = []
                     st.session_state.image_chat_recommendations = None
                     st.session_state.image_chat_pending = False

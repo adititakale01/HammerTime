@@ -13,14 +13,14 @@ def dashboard_view():
     main_col, summary_col = st.columns([2.5, 1])
     
     with main_col:
-        st.markdown("### Product Search")
+        st.markdown("## AI Search")
         
         # Search with button
-        search_col, btn_col = st.columns([4, 1])
+        search_col, btn_col = st.columns([3, 1])
         with search_col:
             search_query = st.text_input(
                 "Search",
-                placeholder="Search by product or task (e.g. 'Drywall', '500 screws M4')",
+                placeholder="Search by product or task (e.g. 'Drywall', '500 screws M4',...)",
                 label_visibility="collapsed",
                 value=st.session_state.last_search_query
             )
@@ -159,9 +159,9 @@ def dashboard_view():
             st.markdown("""
             <div style="text-align: center; padding: 3rem 1rem; color: #64748B;">
                 <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
-                <h3 style="color: #1E3A5F; margin-bottom: 0.5rem;">Search for materials</h3>
-                <p>Describe what you need and our AI will recommend the best products.</p>
-                <p style="font-size: 0.9rem; color: #94A3B8;">Try: "500 stainless screws M4×20 with washers"</p>
+                <h3 style="color: #1E3A5F; margin-bottom: 0.5rem;">Search for materials or tasks!</h3>
+                <p>Describe what you need and HAMMA! will recommend the best products for the job.</p>
+                <p style="font-size: 0.9rem; color: #94A3B8;">Try: "Tools for installing drywall"</p>
             </div>
             """, unsafe_allow_html=True)
     
