@@ -31,8 +31,41 @@ def render_order_summary(key_prefix="default"):
     """Render the order summary component"""
     st.markdown("### Order Summary")
     
+    # Show last order status banner if cart is empty
     if not st.session_state.cart:
-        st.markdown("*Your cart is empty*")
+        last_status = st.session_state.get('last_order_status')
+        if last_status:
+            if last_status == "Order Declined":
+                st.markdown("""
+                <div style="background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%); 
+                            border: 2px solid #EF4444; border-radius: 12px; padding: 1.5rem; 
+                            text-align: center; margin-bottom: 1rem;">
+                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">❌</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #DC2626;">Order Declined</div>
+                    <div style="font-size: 0.85rem; color: #991B1B; margin-top: 0.25rem;">
+                        Admin can re-approve in Orders tab
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            elif last_status in ["Auto-Approved", "Admin Approved"]:
+                st.markdown(f"""
+                <div style="background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); 
+                            border: 2px solid #10B981; border-radius: 12px; padding: 1.5rem; 
+                            text-align: center; margin-bottom: 1rem;">
+                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">✅</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #059669;">{last_status}</div>
+                    <div style="font-size: 0.85rem; color: #047857; margin-top: 0.25rem;">
+                        View in Orders & Reports tabs
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            # Button to clear status and start fresh
+            if st.button("🛒 New Order", use_container_width=True, key=f"{key_prefix}_new_order_btn"):
+                st.session_state.last_order_status = None
+                st.rerun()
+        else:
+            st.markdown("*Your cart is empty*")
         return
     
     for item in st.session_state.cart:
@@ -74,17 +107,17 @@ def render_order_summary(key_prefix="default"):
         if requires_approval:
             if admin_password == ADMIN_PASSWORD:
                 status = place_order(custom_status="Admin Approved")
-                st.success(f"✅ Order approved by admin!")
+                st.session_state.last_order_status = "Admin Approved"
                 st.rerun()
             elif admin_password:  # Wrong password entered
                 status = place_order(custom_status="Order Declined")
-                st.error("❌ Invalid password. Order declined.")
+                st.session_state.last_order_status = "Order Declined"
                 st.rerun()
             else:  # No password entered
                 st.warning("⚠️ Please enter admin password to place this order.")
         else:
             status = place_order()
-            st.success(f"Order placed successfully!")
+            st.session_state.last_order_status = "Auto-Approved"
             st.rerun()
 
 

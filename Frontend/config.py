@@ -17,7 +17,7 @@ PRODUCTS = [
 API_BASE_URL = "http://localhost:8000"
 
 # Order Settings
-AUTO_APPROVAL_LIMIT = 1000  # Orders above this amount (EUR) require manual approval
+AUTO_APPROVAL_LIMIT = 100  # Orders above this amount (EUR) require manual approval
 ADMIN_PASSWORD = "admin123"  # Password required for orders over limit
 
 
@@ -63,4 +63,7 @@ def init_session_state():
         st.session_state.image_chat_pending = False  # Flag for pending AI response
     if 'image_uploaded_data' not in st.session_state:
         st.session_state.image_uploaded_data = None  # Base64 encoded image data
+    # Last order status for visual feedback
+    if 'last_order_status' not in st.session_state:
+        st.session_state.last_order_status = None  # "Auto-Approved", "Admin Approved", "Order Declined"
 

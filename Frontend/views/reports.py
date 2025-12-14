@@ -17,7 +17,11 @@ def reports_view():
         st.metric("Total Orders", total_orders)
     
     with col2:
-        total_spend = sum(o['Total (EUR)'] for o in st.session_state.orders) if st.session_state.orders else 0
+        # Only count approved orders (exclude declined)
+        total_spend = sum(
+            o['Total (EUR)'] for o in st.session_state.orders 
+            if o.get('Status') != 'Order Declined'
+        ) if st.session_state.orders else 0
         st.metric("Total Spend", f"€{total_spend:.2f}")
     
     with col3:
