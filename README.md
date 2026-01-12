@@ -7,6 +7,7 @@ An Agentic Procurement Assistant for Construction: HammerTime
 This is our submission for the TUM.ai x Anthropic Hackathon with comstruct: HammerTime. We tackled the "C-Materials Challenge", simplifying the messy, overlooked tail-spend of construction procurement (screws, gloves, drill bits) for non-digital native foremen.
 Instead of forcing construction workers to navigate complex ERPs, we built a multi-modal AI agent that translates "site talk" into structured orders.
 
+
 🚀 The Tech Stack & Architecture
 We built a decoupled architecture designed for speed and reliability:
 
@@ -114,5 +115,3 @@ pip install pyaudio
 pip install SpeechRecognition
 ```
 
----
-Hackathon Demo v2.0
