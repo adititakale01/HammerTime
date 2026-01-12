@@ -2,6 +2,35 @@
 
 TUM.ai X Anthropic - Procurement Assistant
 
+An Agentic Procurement Assistant for Construction: HammerTime
+
+This is our submission for the TUM.ai x Anthropic Hackathon with comstruct: HammerTime. We tackled the "C-Materials Challenge", simplifying the messy, overlooked tail-spend of construction procurement (screws, gloves, drill bits) for non-digital native foremen.
+Instead of forcing construction workers to navigate complex ERPs, we built a multi-modal AI agent that translates "site talk" into structured orders.
+
+🚀 The Tech Stack & Architecture
+We built a decoupled architecture designed for speed and reliability:
+
+🔹 The Brain: Agentic AI with Anthropic Claude 3.5 Sonnet
+We didn't just wrap a chatbot. We built a logic-driven agent (request_agent.py) that handles the procurement lifecycle:
+- Intent Recognition: Cleans raw voice transcripts to remove filler words ("um," "uh") using a specialized prompt chain.
+- Structured Extraction: Forces Claude to output strict JSON mapped to our normalized product model ([ID, Quantity]) rather than conversational fluff.
+- Fuzzy Logic Layer: Since LLMs can hallucinate SKUs, we implemented a Python validation layer using difflib to fuzzy-match AI outputs against our sample.csv catalog, ensuring real-time inventory and price checks.
+
+🔹 Multi-Modal Inputs (Vision & Voice)
+- Voice-First UX: Integrated PyAudio and Google Speech Recognition for hands-free ordering.
+- Computer Vision: Users can snap a photo of a handwritten scribbled note or a pile of parts. The backend (image_processing.py) uses Claude’s vision capabilities to transcribe handwriting or identify parts and immediately build a cart.
+
+🔹 Backend: FastAPI & Business Logic
+- API-First: Built on FastAPI to serve the agent logic, image analysis, and PDF generation asynchronously.
+- Approval Workflows: Implemented real-world business rules. Orders >€100 trigger an "Admin Approval" state, requiring a password override (simulating a procurement manager review).
+- Contract Generation: Uses ReportLab to programmatically generate standard PDF Supply Contracts (pdf_generator.py) instantly upon approval.
+
+🔹 Frontend: Streamlit
+We used Streamlit for a responsive, mobile-first dashboard that manages session state (st.session_state) for cart persistence and chat history, creating a seamless WhatsApp-like experience for the user.
+
+💡 Why it matters
+We took unstructured data (a foreman yelling "I need drywall screws!") and gave structured ERP data (Contract creation, SKU mapping, and Inventory checks) without changing how the worker operates.
+
 ## Prerequisites
 
 ### System Dependencies (Ubuntu/Debian)
